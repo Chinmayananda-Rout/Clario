@@ -14,9 +14,26 @@ const userSchema = new mongoose.Schema({
     },
     password : {
         type : String,
-        required : true,
+        required : false,
         minlength : 6
     },  
+    authProvider : {
+        type : String,
+        enum : ['email', 'google', 'facebook'],
+        default : 'email'
+    },
+    isVerified : {
+        type : Boolean,
+        default : false
+    },
+    otp : {
+        type : String,
+        required : false
+    },
+    otpExpires:{
+        type : Date,
+        required : false
+    }
 }, {timestamps : true});    
 
 module.exports = mongoose.model('User', userSchema);

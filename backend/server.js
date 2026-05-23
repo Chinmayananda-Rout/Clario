@@ -3,11 +3,24 @@ const cors = require('cors');
 require('dotenv').config();
 const connectDB = require('./config/db');
 
+const session = require('express-session');
+const passport = require('passport');
+require('./config/passport');
+
 connectDB();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/api/auth', require('./routes/authRoutes'));
 
