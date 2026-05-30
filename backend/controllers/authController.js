@@ -141,4 +141,67 @@ const googleCallback = (req, res) => {
     }
 };
 
-module.exports = { registerUser, verifyOtp, loginUser, googleCallback };
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({email});
+        if(!user) {
+            return res.status(400).json({message : 'Email not found'});
+        }
+
+        if(user.authProvider === 'google' && !user.password) {
+            return res.status(400).json({message : 'You cannot reset the password for a Google account'});
+        }
+
+        // Generate reset password OTP and expiration
+        const resetOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.resetPasswordOtp = resetOtp;
+        user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000); 
+    
+        await user.save();
+
+        const message = `You have requested to reset your password. Your OTP is ${resetPasswordOtp}. It will expire in 10 minutes.`;
+        await sendEmail({
+            email : user.email,
+            subject : 'Clario Password Reset',
+            message : message
+        });
+
+        res.status(200).json({message : 'Password reset OTP sent to your email'});
+    }catch (error) {
+        console.error(error);
+        res.status(500).json({message : 'Server error during forgot password'});
+    }
+};
+
+const resetPassword = async (req, res) => {
+    try {
+        const { email, otp, newPassword } = req.body;
+        if(!email || !otp || !newPassword) {
+            return res.status(400).json({message : 'Please provide email, OTP, and new password'});
+        }
+        const user = await User.findOne({email});
+
+        if(!user ||user.resetPasswordOtp !== otp) {
+            return res.status(400).json({message : 'Invalid OTP or email'});
+        }
+        
+        if(user.resetPasswordExpires < Date.now()) {
+            return res.status(400).json({message : 'OTP has expired'});
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+
+        user.resetPasswordOtp = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();  
+
+        res.status(200).json({message : 'Password reset successful'});
+    }catch (error) {
+        console.error(error);
+        res.status(500).json({message : 'Server error during password reset'});
+    }
+};
+
+module.exports = { registerUser, verifyOtp, loginUser, googleCallback, forgotPassword , resetPassword};
