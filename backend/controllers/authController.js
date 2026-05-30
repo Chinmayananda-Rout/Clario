@@ -99,6 +99,10 @@ const loginUser = async (req, res) => {
             return res.status(400).json({message : 'Email not found'});
         }
 
+        if(!user.password) {
+            return res.status(400).json({message : 'This account is registered with Google. Please use Google login.'});
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch) {
             return res.status(400).json({message : 'Invalid password'});
@@ -160,7 +164,7 @@ const forgotPassword = async (req, res) => {
     
         await user.save();
 
-        const message = `You have requested to reset your password. Your OTP is ${resetPasswordOtp}. It will expire in 10 minutes.`;
+        const message = `You have requested to reset your password. Your OTP is ${resetOtp}. It will expire in 10 minutes.`;
         await sendEmail({
             email : user.email,
             subject : 'Clario Password Reset',
