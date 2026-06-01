@@ -157,7 +157,6 @@ const forgotPassword = async (req, res) => {
             return res.status(400).json({message : 'You cannot reset the password for a Google account'});
         }
 
-        // Generate reset password OTP and expiration
         const resetOtp = Math.floor(100000 + Math.random() * 900000).toString();
         user.resetPasswordOtp = resetOtp;
         user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000); 

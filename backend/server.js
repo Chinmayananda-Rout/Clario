@@ -1,6 +1,6 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
 const connectDB = require('./config/db');
 
 const session = require('express-session');
@@ -23,6 +23,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api/auth', require('./routes/authRoutes'));
+
+app.use('/api/tasks', require('./routes/taskRoutes'));
 
 app.get('/', (req, res) => {
   res.send('Hello from the backend!');
