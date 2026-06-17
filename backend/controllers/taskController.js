@@ -1,8 +1,8 @@
-const Task = require('../models/task');
+const Task = require('../models/Task');
 
 const createTask = async (req, res) => {
     try{
-        const { title, category, priority, dueDate } = req.body;
+        const { title, category, priority, dueDate, project } = req.body;
 
         if(!title) {
             return res.status(400).json({message : 'Title is required'});
@@ -13,7 +13,8 @@ const createTask = async (req, res) => {
             title,
             category,
             priority,
-            dueDate
+            dueDate,
+            project
         });
 
         await task.save();
