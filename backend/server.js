@@ -28,6 +28,8 @@ app.use('/api/tasks', require('./routes/taskRoutes'));
 
 app.use('/api/projects', require('./routes/projectRoutes'));
 
+app.use('/api/finance', require('./routes/financeRoutes'));
+
 app.get('/', (req, res) => {
   res.send('Hello from the backend!');
 });
