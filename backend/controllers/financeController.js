@@ -27,6 +27,19 @@ const createTransaction = async (req, res) => {
     }
 };
 
+const getTransactions = async (req, res) => {
+    try {
+        const currentUserId = req.user._id || req.user.userId;
+
+        const transactions = await Transaction.find({ user: currentUserId }).sort({ date: -1 });
+
+        res.status(200).json(transactions);
+    } catch (error) {
+        console.error("Fetch Transactions Error:", error.message);
+        res.status(500).json({ message: 'Server error fetching transactions' });
+    }
+};
+
 const updateTransaction = async (req, res) => {
     try{
         const currentUserId  = req.user._id || req.user.userId;
@@ -139,6 +152,7 @@ const getFinanceSummary = async (req, res) => {
 
 module.exports = {
     createTransaction,
+    getTransactions,
     updateTransaction,
     deleteTransaction,
     getFinanceSummary
